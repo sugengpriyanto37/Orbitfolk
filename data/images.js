@@ -1,0 +1,21 @@
+// Central registry for the site's generated photography (all AI-generated, no text in frame).
+export const IMG = {
+  homeHero: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/b12bf0e14_generated_image.png',
+  story: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/422efd9b7_generated_image.png',
+  lisbon: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/d59a0884d_generated_image.png',
+  chiangmai: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/710308e25_generated_image.png',
+  mexicocity: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/8b75ee572_generated_image.png',
+  barcelona: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/a7b8921da_generated_image.png',
+  danang: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/f55140aae_generated_image.png',
+  medellin: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/8d14f6e2e_generated_image.png',
+  marrakech: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/51011382f_generated_image.png',
+  canggu: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/d61b30707_generated_image.png',
+  capetown: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/066691bbe_generated_image.png',
+  tokyo: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/3b1fec64d_generated_image.png',
+  buenosaires: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/29bba904b_generated_image.png',
+  split: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/991d125cc_generated_image.png',
+  community: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/7cdbc59ce_generated_image.png',
+  room: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/f4234e033_generated_image.png',
+  workspace: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/69224727f_generated_image.png',
+  aboutHero: 'https://media.base44.com/images/public/6ad71a5761ac4f502adba02d/de3493c65_generated_image.png',
+};
