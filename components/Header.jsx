@@ -92,6 +92,7 @@ export default function Header() {
           >
             Join
           </Link>
+          <Link href="/login" className="hidden md:inline-flex text-sm font-semibold text-[#1A1A1A] hover:text-[#B85C38]">Sign in</Link>
           <button className="md:hidden p-2" onClick={() => setMobileOpen((v) => !v)} aria-label="Menu">
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>

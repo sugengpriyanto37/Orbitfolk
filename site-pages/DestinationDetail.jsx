@@ -13,8 +13,8 @@ import { included, detailFaqs } from '@/data/site';
 
 const H2 = 'font-heading font-black uppercase tracking-tight leading-[1.02] text-3xl md:text-5xl';
 
-export default function DestinationDetail({ slug }) {
-  const dest = getDestination(slug);
+export default function DestinationDetail({ slug, destination }) {
+  const dest = destination || getDestination(slug);
 
   if (!dest) {
     return (

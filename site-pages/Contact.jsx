@@ -27,7 +27,7 @@ export default function Contact() {
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!form.firstName.trim() || !form.email.trim() || !form.topic) {
       setError('Please fill in your name, email and a topic.');
@@ -38,6 +38,9 @@ export default function Contact() {
       return;
     }
     setError('');
+    const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, nomadType: form.type }) });
+    const result = await response.json();
+    if (!response.ok) { setError(result.error || 'Unable to send your message.'); return; }
     setSent(true);
   };
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Check, ChevronLeft, Loader2, ShieldCheck } from 'lucide-react';
+import { Check, ChevronLeft, CreditCard, Loader2, LockKeyhole } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import Reveal from '@/components/Reveal';
 import Pill from '@/components/Pill';
@@ -16,6 +16,12 @@ const underlineInput =
 const cardField =
   'h-12 w-full rounded-lg border border-[#E5E5E5] bg-white px-4 text-sm outline-none focus:border-[#B85C38] transition-colors placeholder:text-neutral-400';
 
+const formatCardNumber = (value) => value.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ');
+const formatExpiry = (value) => {
+  const digits = value.replace(/\D/g, '').slice(0, 4);
+  return digits.length > 2 ? `${digits.slice(0, 2)} / ${digits.slice(2)}` : digits;
+};
+
 export default function Join() {
   const [step, setStep] = useState(0);
   const [destSlug, setDestSlug] = useState('');
@@ -24,6 +30,7 @@ export default function Join() {
   const [card, setCard] = useState({ holder: '', number: '', expiry: '', cvc: '' });
   const [processing, setProcessing] = useState(false);
   const [bookingRef, setBookingRef] = useState('');
+  const [bookingError, setBookingError] = useState('');
 
   useEffect(() => {
     const prefill = new URLSearchParams(window.location.search).get('destination');
@@ -42,13 +49,23 @@ export default function Join() {
     step === 2 ? details.name.trim() && details.email.trim() :
     card.holder.trim() && card.number.trim() && card.expiry.trim() && card.cvc.trim();
 
-  const complete = () => {
+  const complete = async () => {
     setProcessing(true);
-    setTimeout(() => {
-      setBookingRef(`OF-${Math.random().toString(36).slice(2, 8).toUpperCase()}`);
-      setProcessing(false);
+    setBookingError('');
+    try {
+      const response = await fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ destinationSlug: destSlug, planName, guestName: details.name, guestEmail: details.email, notes: details.notes }) });
+      const result = await response.json();
+      if (!response.ok) {
+        setBookingError(result.error || 'Unable to create your booking.');
+        return;
+      }
+      setBookingRef(result.booking?.id?.slice(0, 8).toUpperCase() || 'CONFIRMED');
       setStep(4);
-    }, 1600);
+    } catch {
+      setBookingError('Unable to reach the booking service. Please try again.');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   // Confirmation — ticket layout
@@ -243,10 +260,35 @@ export default function Join() {
           {/* Step 4 — payment */}
           {step === 3 && dest && plan && (
             <div className="max-w-3xl mx-auto grid md:grid-cols-5 gap-8 items-start">
-              <div className="md:col-span-3 bg-white border border-[#EDE9E6] rounded-2xl p-8 space-y-6">
+              {bookingError && (
+                <div className="md:col-span-5 rounded-2xl border border-[#EBCFBE] bg-[#FFF8F4] p-5 text-sm text-[#8D452D]" role="alert">
+                  <p className="font-semibold">{bookingError}</p>
+                  {bookingError.toLowerCase().includes('sign in') && (
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Link href={`/login?next=${encodeURIComponent(`/join?destination=${destSlug}`)}`} className="inline-flex h-10 items-center rounded-full bg-[#B85C38] px-5 font-semibold text-white hover:bg-[#9E4E2F]">Sign in to continue</Link>
+                      <Link href={`/register?next=${encodeURIComponent(`/join?destination=${destSlug}`)}`} className="inline-flex h-10 items-center rounded-full border border-[#DDB7A5] px-5 font-semibold text-[#8D452D] hover:border-[#B85C38]">Create account</Link>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="md:col-span-3 bg-white border border-[#EDE9E6] rounded-2xl p-6 md:p-8 space-y-6">
+                <div className="relative overflow-hidden rounded-2xl bg-[#262626] p-6 text-white shadow-lg shadow-neutral-300/40">
+                  <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border-[18px] border-white/10" />
+                  <div className="absolute -bottom-20 right-8 h-44 w-44 rounded-full border-[18px] border-[#B85C38]/40" />
+                  <div className="relative flex items-start justify-between">
+                    <CreditCard className="h-7 w-7 text-[#F7E6DF]" />
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">Orbitfolk pass</span>
+                  </div>
+                  <p className="relative mt-9 font-mono text-lg tracking-[0.18em]">{card.number || '•••• •••• •••• ••••'}</p>
+                  <div className="relative mt-5 flex items-end justify-between text-[10px] uppercase tracking-[0.14em] text-white/55">
+                    <div><span className="block text-[9px]">Card holder</span><span className="mt-1 block text-xs text-white">{card.holder || 'Your name'}</span></div>
+                    <div><span className="block text-[9px]">Expires</span><span className="mt-1 block text-xs text-white">{card.expiry || 'MM / YY'}</span></div>
+                  </div>
+                </div>
                 <input
                   className={cardField}
                   placeholder="Name on card"
+                  autoComplete="cc-name"
                   value={card.holder}
                   onChange={(e) => setCard({ ...card, holder: e.target.value })}
                 />
@@ -254,27 +296,30 @@ export default function Join() {
                   className={cardField}
                   placeholder="Card number"
                   inputMode="numeric"
+                  autoComplete="cc-number"
                   value={card.number}
-                  onChange={(e) => setCard({ ...card, number: e.target.value.replace(/[^\d ]/g, '').slice(0, 19) })}
+                  onChange={(e) => setCard({ ...card, number: formatCardNumber(e.target.value) })}
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <input
                     className={cardField}
                     placeholder="MM / YY"
                     inputMode="numeric"
+                    autoComplete="cc-exp"
                     value={card.expiry}
-                    onChange={(e) => setCard({ ...card, expiry: e.target.value.slice(0, 7) })}
+                    onChange={(e) => setCard({ ...card, expiry: formatExpiry(e.target.value) })}
                   />
                   <input
                     className={cardField}
                     placeholder="CVC"
                     inputMode="numeric"
+                    autoComplete="cc-csc"
                     value={card.cvc}
                     onChange={(e) => setCard({ ...card, cvc: e.target.value.replace(/\D/g, '').slice(0, 4) })}
                   />
                 </div>
                 <p className="flex items-center gap-2 text-xs text-neutral-500">
-                  <ShieldCheck className="w-4 h-4 text-[#B85C38]" />
+                  <LockKeyhole className="w-4 h-4 text-[#B85C38]" />
                   Demo checkout — no payment is processed and no card data is stored.
                 </p>
               </div>

@@ -11,7 +11,7 @@ const variants = {
 };
 
 // Pill-shaped CTA used everywhere on the site. Pass `to` for a Link, else onClick/type for a button.
-export default function Pill({ to, onClick, children, variant = 'terracotta', className = '', type = 'button', arrow = false }) {
+export default function Pill({ href, to, onClick, children, variant = 'terracotta', className = '', type = 'button', arrow = false }) {
   const cls = `inline-flex items-center justify-center gap-2 h-12 px-7 rounded-full text-sm font-semibold transition-colors duration-200 whitespace-nowrap ${variants[variant]} ${className}`;
   const inner = (
     <>
@@ -19,6 +19,7 @@ export default function Pill({ to, onClick, children, variant = 'terracotta', cl
       {arrow && <ArrowRight className="w-4 h-4" />}
     </>
   );
-  if (to) return <Link href={to} className={cls}>{inner}</Link>;
+  const linkHref = href || to;
+  if (linkHref) return <Link href={linkHref} className={cls}>{inner}</Link>;
   return <button type={type} onClick={onClick} className={cls}>{inner}</button>;
 }

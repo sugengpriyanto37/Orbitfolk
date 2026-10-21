@@ -4,9 +4,10 @@ import Reveal from '@/components/Reveal';
 import SectionLabel from '@/components/SectionLabel';
 import DestinationCard from '@/components/DestinationCard';
 import CtaSection from '@/components/CtaSection';
-import { months, monthBlurbs, destinationsByMonth } from '@/data/destinations';
+import { months, monthBlurbs } from '@/data/destinations';
 
-export default function Destinations() {
+export default function Destinations({ destinations }) {
+  const byMonth = (month) => destinations.filter((destination) => destination.month === month);
   return (
     <div>
       {/* Hero */}
@@ -37,12 +38,12 @@ export default function Destinations() {
                   <p className="mt-3 text-neutral-600">{monthBlurbs[month]}</p>
                 </div>
                 <span className="hidden md:inline-flex h-11 px-6 items-center rounded-full border border-[#E0E0E0] bg-white text-sm font-semibold text-neutral-500">
-                  {destinationsByMonth(month).length} trips · 2027
+                  {byMonth(month).length} trips · 2027
                 </span>
               </div>
             </Reveal>
             <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {destinationsByMonth(month).map((d) => (
+              {byMonth(month).map((d) => (
                 <DestinationCard key={d.slug} destination={d} />
               ))}
             </div>
